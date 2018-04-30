@@ -13,44 +13,37 @@ RESOURCE = SESSION.resource('ec2')
 OFFICE_CITIES = ['Toronto II', 'London III', 'Dallas I']
 OFFICE_CITIES_CIDRS = get_cidrs(OFFICE_CITIES)
 
-INCAPSULA_CIDRS = {'Incapsula IP1': '1.1.1.0/21', 'Incapsula IP2': '2.1.1.0/19', 'Incapsula IP3': '3.1.1.0/21'}
+INCAPSULA_CIDRS = {'Incapsula IP1': '1.1.1.0/21', 'Incapsula IP2': '2.1.1.0/19', \
+                   'Incapsula IP3': '3.1.1.0/21'}
 MY_CITIES_CIDRS = {**OFFICE_CITIES_CIDRS, **INCAPSULA_CIDRS}
 MY_FROM_TO_PORTS = [[443, 443]]
 
 MY_VPC_IDs = ['vpc-11111111']
 MY_GROUP_NAME = "SomeWhitelist"
 MY_GROUP_DESC = "Holds Incapsula/Zscalar IPs to be whitelisted"
+MY_GROUP_TAGS = [{'Key': 'Environment', 'Value': 'UAT'}, {'Key': 'Name', 'Value': MY_GROUP_NAME}]
 
-def create_sg(vpcid, groupname, desc):
+def create_sg(vpcid, groupname, desc, tags):
     try:
         response = EC2.create_security_group(
             #DryRun=True,
             Description=desc,
             GroupName=groupname,
-            VpcId=vpcid           
+            VpcId=vpcid
         )
-        return(response)
+        security_group = RESOURCE.SecurityGroup(response['GroupId'])
+        tags = security_group.create_tags(
+            #DryRun=True,
+            Tags=tags
+        )
+        return response
     except ClientError as err:
         print(err)
 
 
-# there is no way to get groupid programtically, not using this function
-#def del_sg(groupid, desc):
-#    try:
-#        response = RESOURCE.SecurityGroup(sg_id).revoke_ingress(
-#            DryRun=True,
-#            GroupId=groupid,
-#            GroupName=groupid
-#            
-#        )
-#        print(response)
-#    except ClientError as err:
-#        print(err)
-
-
 MY_GROUP_IDS = []
 for vpc_id in MY_VPC_IDs:
-    MY_GROUP_IDS.append(create_sg(vpc_id, MY_GROUP_NAME, MY_GROUP_DESC)['GroupId'])
+    MY_GROUP_IDS.append(create_sg(vpc_id, MY_GROUP_NAME, MY_GROUP_DESC, MY_GROUP_TAGS)['GroupId'])
 print('The following security groups are created: ')
 print(MY_GROUP_IDS)
 

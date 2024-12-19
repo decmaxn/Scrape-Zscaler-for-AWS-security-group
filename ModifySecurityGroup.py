@@ -4,12 +4,14 @@ import boto3
 from botocore.exceptions import ClientError
 from ZscalerCity import get_cidrs
 
+# 设置AWS配置文件
 PROFILE = "it"
 SESSION = boto3.session.Session(profile_name=PROFILE)
 EC2 = SESSION.client('ec2')
 RESOURCE = SESSION.resource('ec2')
     
 
+# 添加CIDR到安全组的函数
 def add_loc_cidr_sg(location, cidr_ip, sg_id, port_range):
     try:
         response = EC2.authorize_security_group_ingress(
@@ -30,6 +32,7 @@ def add_loc_cidr_sg(location, cidr_ip, sg_id, port_range):
         print(err)
 
 
+# 删除CIDR从安全组的函数
 def del_loc_cidr_sg(location, cidr_ip, sg_id, port_range):
     try:
         response = RESOURCE.SecurityGroup(sg_id).revoke_ingress(
@@ -51,6 +54,7 @@ def del_loc_cidr_sg(location, cidr_ip, sg_id, port_range):
 
 
 if __name__ == "__main__":
+    # 定义办公室城市和CIDR
     OFFICE_CITIES = ['Toronto II', 'London III', 'Dallas I']
     OFFICE_CITIES_CIDRS = get_cidrs(OFFICE_CITIES)
     CUSTOMER_CIDRS = {'Customer I': '164.225.37.0/23', 'Customer II': '164.225.81.0/22'}

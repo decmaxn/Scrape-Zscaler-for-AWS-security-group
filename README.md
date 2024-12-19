@@ -15,3 +15,7 @@ pip install --requirement python_requirements.txt
 # How 
 - Zscaler_whatever.py will scrape Zscaler web site to get list, modify location/city list and run.
 - Others.py can be run by itself, also imported as module, modify PROFILE, VPC_Id, GroupId, FromPort/ToPort before run. 
+
+# To Do
+- python_requirements.txt update versions so all of them could be installed with python3
+- ZscalerCity.py need to be updated to work with the latest Zscaler node range page
